@@ -25,7 +25,7 @@ export default function DashboardLayout({
       />
 
       <div className="flex flex-1 overflow-hidden">
-        
+
         <div
           className={`
             fixed inset-0 z-40 bg-black/50 transition-opacity 

@@ -1,11 +1,11 @@
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import background from '../assets/home.jpg';
 import { LoginInterface } from '../interface/login.interface';
 import { useAppDispatch } from '../store/hooks';
 import { showSpinner, hideSpinner } from '../store/slices/spinner/spinnerSlice';
-import { fakeLoginService } from '../services/fakeService';
+import { loginService } from '../services/loginService';
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
@@ -16,31 +16,30 @@ const LoginSchema = Yup.object().shape({
 });
 
 function Login() {
-    
-    const dispatch = useAppDispatch();
-    const navigate = useNavigate();
 
-    const formik = useFormik<LoginInterface>({
-        initialValues: {
-          email: '',
-          password: '',
-          rememberMe: false,
-        },
-        validationSchema: LoginSchema,
-        onSubmit: async (values) => {
-          dispatch(showSpinner());
-    
-          try {
-            console.log(values);
-            await fakeLoginService(values);
-            navigate('/dashboard');
-          } catch (error) {
-            console.error('Error en login:', error);
-          } finally {
-            dispatch(hideSpinner());
-          }
-        },
-      });
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const formik = useFormik<LoginInterface>({
+    initialValues: {
+      email: '',
+      password: '',
+      rememberMe: false,
+    },
+    validationSchema: LoginSchema,
+    onSubmit: async (values) => {
+      dispatch(showSpinner());
+
+      try {
+        await loginService(values);
+        navigate('/dashboard');
+      } catch (error) {
+        console.error('Error en login:', error);
+      } finally {
+        dispatch(hideSpinner());
+      }
+    },
+  });
 
   return (
     <div
@@ -90,10 +89,9 @@ function Login() {
               className={`
                 py-3 px-4 block w-full border rounded-md text-base
                 focus:border-blue-500 focus:ring-blue-500
-                ${
-                  formik.touched.email && formik.errors.email
-                    ? 'border-red-500'
-                    : 'border-gray-300'
+                ${formik.touched.email && formik.errors.email
+                  ? 'border-red-500'
+                  : 'border-gray-300'
                 }
               `}
               value={formik.values.email}
@@ -122,10 +120,9 @@ function Login() {
               className={`
                 py-3 px-4 block w-full border rounded-md text-base
                 focus:border-blue-500 focus:ring-blue-500
-                ${
-                  formik.touched.password && formik.errors.password
-                    ? 'border-red-500'
-                    : 'border-gray-300'
+                ${formik.touched.password && formik.errors.password
+                  ? 'border-red-500'
+                  : 'border-gray-300'
                 }
               `}
               value={formik.values.password}
@@ -138,14 +135,6 @@ function Login() {
               </p>
             )}
           </div>
-
-          <div className="flex items-center gap-1">
-            <span className="text-sm">¿No tienes cuenta?</span>
-            <Link to="/register" className="text-sm text-blue-600 hover:underline">
-              Registrarme
-            </Link>
-          </div>
-
           <button
             type="submit"
             disabled={!formik.values.email || !formik.values.password}
